@@ -2,7 +2,7 @@
 if("RGtk2" %in% installed.packages() == T){
   library(RGtk2)
 }else{
-  install.packages("RGtk2", depen=T))
+  install.packages("RGtk2", depen=T)
   library(RGtk2)
 }
 
@@ -11,7 +11,7 @@ principal <- gtkWindow(type = "toplevel", show = F)
 horizontal <- gtkHBox(T, 10)
 
 vertical1 <- gtkVBox(T, 5)
-regsim <- gtkRadioButton(NULL, "Regresi�n Simple")
+regsim <- gtkRadioButton(NULL, "Regresiï¿½n Simple")
 vertical1$packStart(regsim, fill = F)
 
 boton <- gtkButton("Iniciar")
@@ -63,7 +63,7 @@ limpiar <- gtkButton("Limpiar")
 gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
 ej$packStart(limpiar)
 
-agregar <- gtkButton("A�adir variable")
+agregar <- gtkButton("Añadir variable")
 gSignalConnect(agregar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0)}})
 sel$packEnd(agregar)
 
