@@ -11,7 +11,7 @@ principal <- gtkWindow(type = "toplevel", show = F)
 horizontal <- gtkHBox(T, 10)
 
 vertical1 <- gtkVBox(T, 5)
-regsim <- gtkRadioButton(NULL, "Regresiï¿½n Simple")
+regsim <- gtkRadioButton(NULL, "Regresión Simple")
 vertical1$packStart(regsim, fill = F)
 
 boton <- gtkButton("Iniciar")
