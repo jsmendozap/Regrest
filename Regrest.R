@@ -21,7 +21,9 @@ for (tipo in tipos){
 
 boton <- gtkButton("Iniciar")
 reg <- function(widget){
-  modelo <<- lm(datos[,gtkComboBoxGetActive(y)+1] ~ datos[,gtkComboBoxGetActive(x)+1])
+  fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
+  modelo <<- lm(fm, data = datos)
+  modelo$call$formula <- fm
   print(summary(modelo))}
 gSignalConnect(boton, "clicked", reg)
 
@@ -84,7 +86,6 @@ horizontal$packStart(vertical2)
 
 principal$add(horizontal)
 
-principal$setDefaultSize(300, 50)
 principal$set(title = "Regrest")
 principal["visible"] <- T
 principal["border-width"] <- 7
