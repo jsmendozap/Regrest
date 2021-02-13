@@ -10,9 +10,14 @@ principal <- gtkWindow(type = "toplevel", show = F)
 
 horizontal <- gtkHBox(T, 10)
 
-vertical1 <- gtkVBox(T, 5)
-regsim <- gtkRadioButton(NULL, "Regresión Simple")
-vertical1$packStart(regsim, fill = F)
+vertical1 <- gtkVBox(T, 2)
+tipos <- c("Regresión Simple", "Regresión Múltiple", "Regresión Exponencial", "Regresión Polinómica")
+grupo <- NULL
+for (tipo in tipos){
+  mod <- gtkRadioButton(grupo, tipo)
+  vertical1$add(mod)
+  grupo <- c(grupo, mod)
+}
 
 boton <- gtkButton("Iniciar")
 reg <- function(widget){
