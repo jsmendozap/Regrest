@@ -10,7 +10,7 @@ principal <- gtkWindow(type = "toplevel", show = F)
 
 horizontal <- gtkHBox(T, 10)
 
-vertical1 <- gtkVBox(T, 2)
+vertical1 <- gtkVBox(F, 1)
 tipos <- c("Regresión Simple", "Regresión Múltiple", "Regresión Exponencial", "Regresión Polinómica")
 grupo <- NULL
 for (tipo in tipos){
