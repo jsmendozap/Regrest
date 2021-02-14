@@ -34,7 +34,6 @@ gr$packStart(eti, fill = F, expand = F)
 grado <- gtkEntry(5)
 grado$`width-request` <- 45
 gtkEntrySetAlignment(grado, 0)
-grado$`editable` <- F
 gr$packStart(grado, fill = F, expand = F)
 
 boton <- gtkButton("Modelar")
@@ -50,6 +49,8 @@ reg <- function(widget){
     fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", total))
   }else if(regexp$active == T){
     fm <<- as.formula(paste(paste("log(",colnames(datos)[gtkComboBoxGetActive(y)+1], ")"), "~", paste("log(",colnames(datos)[gtkComboBoxGetActive(x)+1]), ")"))
+  }else if(regpol$active == T){
+    fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", "poly(", colnames(datos)[gtkComboBoxGetActive(x)+1], ",", as.numeric(gtkEntryGetText(grado)),", raw = T)", sep = ""))
   }
   modelo <<- lm(fm, data = datos)
   modelo$call$formula <- fm
