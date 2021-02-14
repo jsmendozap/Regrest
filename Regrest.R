@@ -40,18 +40,18 @@ gr$packStart(grado, fill = F, expand = F)
 boton <- gtkButton("Modelar")
 reg <- function(widget){
   if (regsim$active == T){
-    fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
-    modelo <<- lm(fm, data = datos)
+    fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
   }else if(regmul$active == T){
     total <- NULL
     for (variable in variables){
       total <- paste(total, "+", variable, sep = " ")
     }
     total <- substr(total, 4, nchar(total))
-    fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", total, sep = ))
-    modelo <<- lm(fm, data = datos)
+    fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", total))
+  }else if(regexp$active == T){
+    fm <<- as.formula(paste(paste("log(",colnames(datos)[gtkComboBoxGetActive(y)+1], ")"), "~", paste("log(",colnames(datos)[gtkComboBoxGetActive(x)+1]), ")"))
   }
-  
+  modelo <<- lm(fm, data = datos)
   modelo$call$formula <- fm
   print(summary(modelo))
 }
