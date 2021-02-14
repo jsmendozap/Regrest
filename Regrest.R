@@ -2,7 +2,7 @@
 if("RGtk2" %in% installed.packages() == T){
   library(RGtk2)
 }else{
-  install.packages("RGtk2", depen=T)
+  install.packages("RGtk2", dependencies = T)
   library(RGtk2)
 }
 
@@ -10,21 +10,43 @@ principal <- gtkWindow(type = "toplevel", show = F)
 
 horizontal <- gtkHBox(T, 10)
 
-vertical1 <- gtkVBox(F, 1)
-tipos <- c("Regresión Simple", "Regresión Múltiple", "Regresión Exponencial", "Regresión Polinómica")
-grupo <- NULL
-for (tipo in tipos){
-  mod <- gtkRadioButton(grupo, tipo)
-  vertical1$add(mod)
-  grupo <- c(grupo, mod)
-}
+vertical1 <- gtkVBox(F, 2)
 
-boton <- gtkButton("Iniciar")
+regsim <- gtkRadioButton(NULL, "Regresión Simple")
+vertical1$packStart(regsim)
+
+regmul <- gtkRadioButton(c(NULL, regsim), "Regresión Múltiple")
+vertical1$packStart(regmul)
+
+regexp <- gtkRadioButton(c(NULL, regsim, regmul), "Regresión Exponencial")
+vertical1$packStart(regexp)
+
+regpol <- gtkRadioButton(c(NULL, regsim, regmul, regexp), "Regresión Polinómica")
+vertical1$packStart(regpol)
+
+gr <- gtkHBox(F, 0)
+vertical1$add(gr)
+
+eti <- gtkLabel("Grado Polinomio:")
+eti$xpad <- 5
+gr$packStart(eti, fill = F, expand = F)
+
+grado <- gtkEntry(5)
+grado$`width-request` <- 45
+gtkEntrySetAlignment(grado, 0)
+grado$`editable` <- F
+gr$packStart(grado, fill = F, expand = F)
+
+boton <- gtkButton("Modelar")
 reg <- function(widget){
-  fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
-  modelo <<- lm(fm, data = datos)
+  if (regsim$active == T){
+    fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
+    modelo <<- lm(fm, data = datos)
+  }
+  
   modelo$call$formula <- fm
-  print(summary(modelo))}
+  print(summary(modelo))
+}
 gSignalConnect(boton, "clicked", reg)
 
 vertical1$packStart(boton, fill = F)
@@ -70,8 +92,14 @@ limpiar <- gtkButton("Limpiar")
 gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
 ej$packStart(limpiar)
 
+variables <- NULL
+var <- function(widget){
+  variables <<- c(variables, colnames(datos)[gtkComboBoxGetActive(x)+1])
+  print(variables)
+}
+
 agregar <- gtkButton("Añadir variable")
-gSignalConnect(agregar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0)}})
+gSignalConnect(agregar, "clicked", var)
 sel$packEnd(agregar)
 
 x <- gtkComboBoxNewText()
