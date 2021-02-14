@@ -95,7 +95,6 @@ ej$packStart(limpiar)
 variables <- NULL
 var <- function(widget){
   variables <<- c(variables, colnames(datos)[gtkComboBoxGetActive(x)+1])
-  print(variables)
 }
 
 agregar <- gtkButton("Añadir variable")
