@@ -47,6 +47,7 @@ reg <- function(widget){
     }
     total <- substr(total, 4, nchar(total))
     fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", total))
+    variables <<- NULL
   }else if(regexp$active == T){
     fm <<- as.formula(paste(paste("log(",colnames(datos)[gtkComboBoxGetActive(y)+1], ")"), "~", paste("log(",colnames(datos)[gtkComboBoxGetActive(x)+1]), ")"))
   }else if(regpol$active == T){
