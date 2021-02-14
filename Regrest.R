@@ -42,6 +42,14 @@ reg <- function(widget){
   if (regsim$active == T){
     fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
     modelo <<- lm(fm, data = datos)
+  }else if(regmul$active == T){
+    total <- NULL
+    for (variable in variables){
+      total <- paste(total, "+", variable, sep = " ")
+    }
+    total <- substr(total, 4, nchar(total))
+    fm <- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", total, sep = ))
+    modelo <<- lm(fm, data = datos)
   }
   
   modelo$call$formula <- fm
