@@ -5,7 +5,7 @@ if("RGtk2" %in% installed.packages() == F){install.packages("RGtk2", dependencie
 library(easypackages)
 library(RGtk2)
 
-paquetes <- c("cairoDevice")
+paquetes <- c("cairoDevice", "randomcoloR")
 packages(paquetes)
 
 reg <- function(widget){
@@ -64,13 +64,12 @@ save <- function(widget){
   }
 }
 
-g <- function(etx, ety, titul, color = NULL){
+g <- function(etx, ety, titul, color = NULL, back = "blue"){
   options(warn = -1)
   plot(x = datos[,gtkComboBoxGetActive(x)+1],
        y = datos[,gtkComboBoxGetActive(y)+1],
-       xlab = etx,
-       ylab = ety,
-       pch = 21, cex = 1, bg = "blue", font.lab = 2, col = color,
+       xlab = etx, ylab = ety,
+       pch = 21, cex = 1, bg = back, font.lab = 2, col = color,
        family = "serif", col.lab = "#41B83F", bty = "L", fg = "#7DFF7D",
        main = titul, col.main = "#1FAB1D")
   options(warn = 0)
@@ -96,7 +95,14 @@ graficar <- function(widget){
                    names(datos)[gtkComboBoxGetActive(y)+1],
                    gtkEntryGetText(etiquetay))
     col <- gtkComboBoxGetActive(color)
-    ifelse(col == 0, g(labx, laby, title), g(labx, laby, title, col))
+    if(col != 0){
+      paleta <- randomColor(count = length(levels(datos[,gtkComboBoxGetActive(color)])), 
+                             luminosity = "dark")
+      grup <- paleta[datos[,gtkComboBoxGetActive(color)]]
+    }
+    ifelse(col == 0, g(labx, laby, title), g(labx, laby, title, grup, grup))
+    legend("bottomright", legend = levels(datos[,gtkComboBoxGetActive(color)]), lwd = 3,
+           col = paleta, bty = "n")
   }
 
   # Fila 1 - Titulo y seleccion
