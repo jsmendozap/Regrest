@@ -1,10 +1,12 @@
 #!/usr/bin/env Rscript
-if("RGtk2" %in% installed.packages() == T){
-  library(RGtk2)
-}else{
-  install.packages("RGtk2", dependencies = T)
-  library(RGtk2)
-}
+
+if("easypackages" %in% installed.packages() == F){install.packages("easypackages")}
+if("RGtk2" %in% installed.packages() == F){install.packages("RGtk2", dependencies = T)}
+library(easypackages)
+library(RGtk2)
+
+paquetes <- c("ggplot2", "cairoDevice")
+packages(paquetes)
 
 principal <- gtkWindow(type = "toplevel", show = F)
 
@@ -83,6 +85,10 @@ seleccion <- gtkButton("Seleccionar archivo")
 gSignalConnect(seleccion, "clicked", buscar)
 vertical2$packStart(seleccion, fill = F)
 
+limpiar <- gtkButton("Limpiar")
+gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
+vertical2$packEnd(limpiar)
+
 ejes <- gtkHBox(T, 5)
 vertical2$packStart(ejes, fill = F)
 
@@ -98,9 +104,94 @@ ej$packStart(ejex)
 ejey <- gtkLabel("V. Independiente:")
 ej$packStart(ejey)
 
-limpiar <- gtkButton("Limpiar")
-gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
-ej$packStart(limpiar)
+save <- function(widget){
+  dialog <- gtkFileChooserDialog("Enter a name for the file", NULL, "save", "gtk-cancel",
+                                 GtkResponseType["cancel"], "gtk-save", GtkResponseType["accept"])
+  if (dialog$run() == GtkResponseType["accept"]){
+  dev.copy(jpeg, paste(dialog$getFilename(), ".jpeg"), width = 400, height = 400)
+  dev.off()
+  dialog$destroy()
+  }else if(dialog$run() == GtkResponseType["cancel"]){dialog$destroy()}
+}
+
+graficar <- function(widget){
+  graf <- gtkWindow(show = F)
+  division <- gtkVBox(F, 5)
+  graf$add(division)
+  
+  graphics <- gtkDrawingArea()
+  asCairoDevice(graphics)
+  
+  division$packStart(graphics, fill = T, expand = T)
+  
+  # Fila 1 - Titulo y seleccion
+  opciones <- gtkHBox(F, 0)
+  division$packStart(opciones, fill = F, expand = F)
+  opciones$`height-request` <- 20
+  
+  tit <- gtkLabel("Titulo:")
+  tit$xpad <- 5
+  opciones$packStart(tit, fill = F, expand = F)
+  
+  titulo <- gtkEntry()
+  titulo$`width-request` <- 110
+  opciones$packStart(titulo, fill = F, expand = F)
+  
+  resaltar <- gtkLabel("Resaltar:")
+  resaltar$xpad <- 7
+  opciones$packStart(resaltar, fill = F, expand = F)
+  
+  color <- gtkComboBoxNewText()
+  for(nombre in nombres){color$appendText(nombre)}
+  color$setActive(0)
+  color$show()
+  opciones$packStart(color, fill = F, expand = F)
+  
+  aplicar <- gtkButton("Aplicar")
+  gSignalConnect(aplicar, "clicked", save)
+  opciones$packStart(aplicar, fill = F)
+  
+  # Fila 2 - Etiqueta x e y
+  opciones2 <- gtkHBox(F, 0)
+  division$packStart(opciones2, fill = F, expand = F)
+  opciones2$`height-request` <- 20
+  
+  etiqueta <- gtkLabel("Etiqueta x:")
+  etiqueta$xpad <- 5
+  opciones2$packStart(etiqueta, fill = F, expand = F)
+  
+  etiquetax <- gtkEntry()
+  etiquetax$`width-request` <- 90
+  opciones2$packStart(etiquetax, fill = F, expand = F)
+  
+  etiquet <- gtkLabel("Etiqueta y:")
+  etiquet$xpad <- 5
+  opciones2$packStart(etiquet, fill = F, expand = F)
+  
+  etiquetay <- gtkEntry()
+  etiquetay$`width-request` <- 90
+  opciones2$packStart(etiquetay, fill = F, expand = F)
+  
+  guardar <- gtkButton("Guardar")
+  gSignalConnect(guardar, "clicked", save)
+  opciones2$packStart(guardar, fill = F)
+    
+  graf$setDefaultSize(400,400)
+  graf["border-width"] <- 7
+  graf$showAll()
+  
+  plot(x = datos[,gtkComboBoxGetActive(x)+1],
+       y = datos[,gtkComboBoxGetActive(y)+1],
+       xlab = names(datos)[gtkComboBoxGetActive(x)+1],
+       ylab = names(datos)[gtkComboBoxGetActive(y)+1],
+       pch = 21, cex = 1, bg = "blue", font.lab = 2,
+       family = "serif", col.lab = "#41B83F", bty = "L", fg = "#7DFF7D",
+       main = "Gráfico de dispersión", col.main = "#1FAB1D")
+}
+
+grafico <- gtkButton("Graficar")
+gSignalConnect(grafico, "clicked", graficar)
+ej$packStart(grafico)
 
 variables <- NULL
 var <- function(widget){
