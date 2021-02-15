@@ -5,39 +5,6 @@ if("RGtk2" %in% installed.packages() == F){install.packages("RGtk2", dependencie
 library(easypackages)
 library(RGtk2)
 
-paquetes <- c("ggplot2", "cairoDevice")
-packages(paquetes)
-
-principal <- gtkWindow(type = "toplevel", show = F)
-
-horizontal <- gtkHBox(T, 10)
-
-vertical1 <- gtkVBox(F, 2)
-
-regsim <- gtkRadioButton(NULL, "Regresión Simple")
-vertical1$packStart(regsim)
-
-regmul <- gtkRadioButton(c(NULL, regsim), "Regresión Múltiple")
-vertical1$packStart(regmul)
-
-regexp <- gtkRadioButton(c(NULL, regsim, regmul), "Regresión Exponencial")
-vertical1$packStart(regexp)
-
-regpol <- gtkRadioButton(c(NULL, regsim, regmul, regexp), "Regresión Polinómica")
-vertical1$packStart(regpol)
-
-gr <- gtkHBox(F, 0)
-vertical1$add(gr)
-
-eti <- gtkLabel("Grado Polinomio:")
-eti$xpad <- 5
-gr$packStart(eti, fill = F, expand = F)
-
-grado <- gtkEntry(5)
-grado$`width-request` <- 45
-gtkEntrySetAlignment(grado, 0)
-gr$packStart(grado, fill = F, expand = F)
-
 reg <- function(widget){
   if (regsim$active == T){
     fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
@@ -59,13 +26,6 @@ reg <- function(widget){
   print(summary(modelo))
 }
 
-boton <- gtkButton("Modelar")
-gSignalConnect(boton, "clicked", reg)
-
-vertical1$packStart(boton, fill = F)
-horizontal$packStart(vertical1)
-
-vertical2 <- gtkVBox(F, 5)
 buscar <- function(widget){
   if(.Platform$OS.type == "windows"){
     datos <<- read.csv2(file = choose.files(), sep = ";")
@@ -84,30 +44,7 @@ buscar <- function(widget){
   
   for(nombre in nombres){y$appendText(nombre)}
   y$setActive(0)
-  }
-
-seleccion <- gtkButton("Seleccionar archivo")
-gSignalConnect(seleccion, "clicked", buscar)
-vertical2$packStart(seleccion, fill = F)
-
-limpiar <- gtkButton("Limpiar")
-gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
-vertical2$packEnd(limpiar)
-
-ejes <- gtkHBox(T, 5)
-vertical2$packStart(ejes, fill = F)
-
-sel <- gtkVBox(T, 4)
-ejes$packEnd(sel, fill = F)
-
-ej <- gtkVBox(T, 4)
-ejes$packStart(ej, fill = F)
-
-ejex <- gtkLabel("V. Independiente:")
-ej$packStart(ejex)
-
-ejey <- gtkLabel("V. Dependiente:")
-ej$packStart(ejey)
+}
 
 save <- function(widget){
   if(.Platform$OS.type == "windows"){
@@ -125,6 +62,7 @@ save <- function(widget){
 }
 
 g <- function(etx, ety, titul, color = NULL){
+  options(warn = -1)
   plot(x = datos[,gtkComboBoxGetActive(x)+1],
        y = datos[,gtkComboBoxGetActive(y)+1],
        xlab = etx,
@@ -132,6 +70,7 @@ g <- function(etx, ety, titul, color = NULL){
        pch = 21, cex = 1, bg = "blue", font.lab = 2, col = color,
        family = "serif", col.lab = "#41B83F", bty = "L", fg = "#7DFF7D",
        main = titul, col.main = "#1FAB1D")
+  options(warn = 0)
 }
 
 graficar <- function(widget){
@@ -145,9 +84,14 @@ graficar <- function(widget){
   division$packStart(graphics, fill = T, expand = T)
   
   aplibot <- function(widget){
-    title <- gtkEntryGetText(titulo)
-    labx <- gtkEntryGetText(etiquetax)
-    laby <- gtkEntryGetText(etiquetay)
+    title <- ifelse(nchar(gtkEntryGetText(titulo)) == 0,
+                    "Gráfico de dispersión", gtkEntryGetText(titulo))
+    labx <- ifelse(nchar(gtkEntryGetText(etiquetax)) == 0,
+                   names(datos)[gtkComboBoxGetActive(x)+1],
+                   gtkEntryGetText(etiquetax))
+    laby <- ifelse(nchar(gtkEntryGetText(etiquetay)) == 0,
+                   names(datos)[gtkComboBoxGetActive(y)+1],
+                   gtkEntryGetText(etiquetay))
     col <- gtkComboBoxGetActive(color)
     ifelse(col == 0, g(labx, laby, title), g(labx, laby, title, col))
   }
@@ -214,6 +158,70 @@ graficar <- function(widget){
   titul <- "Gráfico de dispersión"
   g(etx, ety, titul)
 }
+
+paquetes <- c("cairoDevice")
+packages(paquetes)
+
+principal <- gtkWindow(type = "toplevel", show = F)
+
+horizontal <- gtkHBox(T, 10)
+
+vertical1 <- gtkVBox(F, 2)
+
+regsim <- gtkRadioButton(NULL, "Regresión Simple")
+vertical1$packStart(regsim)
+
+regmul <- gtkRadioButton(c(NULL, regsim), "Regresión Múltiple")
+vertical1$packStart(regmul)
+
+regexp <- gtkRadioButton(c(NULL, regsim, regmul), "Regresión Exponencial")
+vertical1$packStart(regexp)
+
+regpol <- gtkRadioButton(c(NULL, regsim, regmul, regexp), "Regresión Polinómica")
+vertical1$packStart(regpol)
+
+gr <- gtkHBox(F, 0)
+vertical1$add(gr)
+
+eti <- gtkLabel("Grado Polinomio:")
+eti$xpad <- 5
+gr$packStart(eti, fill = F, expand = F)
+
+grado <- gtkEntry(5)
+grado$`width-request` <- 45
+gtkEntrySetAlignment(grado, 0)
+gr$packStart(grado, fill = F, expand = F)
+
+boton <- gtkButton("Modelar")
+gSignalConnect(boton, "clicked", reg)
+
+vertical1$packStart(boton, fill = F)
+horizontal$packStart(vertical1)
+
+vertical2 <- gtkVBox(F, 5)
+
+seleccion <- gtkButton("Seleccionar archivo")
+gSignalConnect(seleccion, "clicked", buscar)
+vertical2$packStart(seleccion, fill = F)
+
+limpiar <- gtkButton("Limpiar")
+gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
+vertical2$packEnd(limpiar)
+
+ejes <- gtkHBox(T, 5)
+vertical2$packStart(ejes, fill = F)
+
+sel <- gtkVBox(T, 4)
+ejes$packEnd(sel, fill = F)
+
+ej <- gtkVBox(T, 4)
+ejes$packStart(ej, fill = F)
+
+ejex <- gtkLabel("V. Independiente:")
+ej$packStart(ejex)
+
+ejey <- gtkLabel("V. Dependiente:")
+ej$packStart(ejey)
 
 grafico <- gtkButton("Graficar")
 gSignalConnect(grafico, "clicked", graficar)
