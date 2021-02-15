@@ -5,6 +5,9 @@ if("RGtk2" %in% installed.packages() == F){install.packages("RGtk2", dependencie
 library(easypackages)
 library(RGtk2)
 
+paquetes <- c("cairoDevice")
+packages(paquetes)
+
 reg <- function(widget){
   if (regsim$active == T){
     fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
@@ -158,9 +161,6 @@ graficar <- function(widget){
   titul <- "Gráfico de dispersión"
   g(etx, ety, titul)
 }
-
-paquetes <- c("cairoDevice")
-packages(paquetes)
 
 principal <- gtkWindow(type = "toplevel", show = F)
 
