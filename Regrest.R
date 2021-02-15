@@ -29,12 +29,12 @@ reg <- function(widget){
 
 buscar <- function(widget){
   if(.Platform$OS.type == "windows"){
-    datos <<- read.csv2(file = choose.files(), sep = ";")
+    datos <<- read.csv2(file = choose.files(), sep = ifelse(nchar(gtkEntryGetText(separador)) == 0, ";", gtkEntryGetText(separador)))
   }else{
     archivo <- gtkFileChooserDialog(title = "Selecciona un archivo", parent = NULL , action = "open", "gtk-ok",
                                     GtkResponseType ["ok"], "gtk-cancel", GtkResponseType["cancel"])
     if (archivo$run() == GtkResponseType["ok"]){
-      datos <<- read.csv2(archivo$getFilename(), sep = ";")
+      datos <<- read.csv2(archivo$getFilename(), sep = ifelse(nchar(gtkEntryGetText(separador)) == 0, ";", gtkEntryGetText(separador)))
       archivo$destroy()}
     else if (archivo$run() == GtkResponseType["cancel"]){archivo$destroy()} 
   }
@@ -166,6 +166,17 @@ graficar <- function(widget){
   g(etx, ety, titul)
 }
 
+nuevo <- function(widget){
+  for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}
+  
+  nombres <<- colnames(datos)
+  for(nombre in nombres){x$appendText(nombre)}
+  x$setActive(0)
+  
+  for(nombre in nombres){y$appendText(nombre)}
+  y$setActive(0)
+}
+
 principal <- gtkWindow(type = "toplevel", show = F)
 
 horizontal <- gtkHBox(T, 10)
@@ -191,10 +202,12 @@ eti <- gtkLabel("Grado Polinomio:")
 eti$xpad <- 5
 gr$packStart(eti, fill = F, expand = F)
 
+options(warn = -1)
 grado <- gtkEntry(5)
 grado$`width-request` <- 45
 gtkEntrySetAlignment(grado, 0)
 gr$packStart(grado, fill = F, expand = F)
+options(warn = 0)
 
 boton <- gtkButton("Modelar")
 gSignalConnect(boton, "clicked", reg)
@@ -204,13 +217,32 @@ horizontal$packStart(vertical1)
 
 vertical2 <- gtkVBox(F, 5)
 
+cargar <- gtkHBox(F, 3)
+vertical2$packStart(cargar)
+
 seleccion <- gtkButton("Seleccionar archivo")
 gSignalConnect(seleccion, "clicked", buscar)
-vertical2$packStart(seleccion, fill = F)
+cargar$packEnd(seleccion, fill = F)
+
+sep <- gtkLabel("Separador:")
+cargar$packStart(sep)
+
+options(warn = -1)
+separador <- gtkEntry(1)
+separador$`width-request` <- 20
+cargar$packStart(separador)
+options(warn = 0)
+
+act <- gtkHBox(T, 5)
+vertical2$packEnd(act)
 
 limpiar <- gtkButton("Limpiar")
 gSignalConnect(limpiar, "clicked", function(widget){for(i in 0:(length(nombres)-1)){x$removeText(0); y$removeText(0)}})
-vertical2$packEnd(limpiar)
+act$packEnd(limpiar)
+
+actualizar <- gtkButton("Actualizar")
+gSignalConnect(actualizar, "clicked", nuevo)
+act$packStart(actualizar)
 
 ejes <- gtkHBox(T, 5)
 vertical2$packStart(ejes, fill = F)
