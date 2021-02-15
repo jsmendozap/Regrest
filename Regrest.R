@@ -38,7 +38,6 @@ grado$`width-request` <- 45
 gtkEntrySetAlignment(grado, 0)
 gr$packStart(grado, fill = F, expand = F)
 
-boton <- gtkButton("Modelar")
 reg <- function(widget){
   if (regsim$active == T){
     fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", colnames(datos)[gtkComboBoxGetActive(x)+1]))
@@ -59,6 +58,8 @@ reg <- function(widget){
   modelo$call$formula <- fm
   print(summary(modelo))
 }
+
+boton <- gtkButton("Modelar")
 gSignalConnect(boton, "clicked", reg)
 
 vertical1$packStart(boton, fill = F)
