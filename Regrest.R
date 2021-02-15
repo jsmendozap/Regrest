@@ -67,14 +67,18 @@ horizontal$packStart(vertical1)
 
 vertical2 <- gtkVBox(F, 5)
 buscar <- function(widget){
-  archivo <- gtkFileChooserDialog(title = "Selecciona un archivo", parent = NULL , action = "open", "gtk-ok",
-                       GtkResponseType ["ok"], "gtk-cancel", GtkResponseType["cancel"])
-  if (archivo$run() == GtkResponseType["ok"]){
-    datos <<- read.csv2(archivo$getFilename(), sep = ";")
-    nombres <<- colnames(datos)
-    archivo$destroy()}
-  else if (archivo$run() == GtkResponseType["cancel"]){archivo$destroy()}
+  if(.Platform$OS.type == "windows"){
+    datos <<- read.csv2(file = choose.files(), sep = ";")
+  }else{
+    archivo <- gtkFileChooserDialog(title = "Selecciona un archivo", parent = NULL , action = "open", "gtk-ok",
+                                    GtkResponseType ["ok"], "gtk-cancel", GtkResponseType["cancel"])
+    if (archivo$run() == GtkResponseType["ok"]){
+      datos <<- read.csv2(archivo$getFilename(), sep = ";")
+      archivo$destroy()}
+    else if (archivo$run() == GtkResponseType["cancel"]){archivo$destroy()} 
+  }
   
+  nombres <<- colnames(datos)
   for(nombre in nombres){x$appendText(nombre)}
   x$setActive(0)
   
@@ -99,20 +103,35 @@ ejes$packEnd(sel, fill = F)
 ej <- gtkVBox(T, 4)
 ejes$packStart(ej, fill = F)
 
-ejex <- gtkLabel("V. Dependiente:")
+ejex <- gtkLabel("V. Independiente:")
 ej$packStart(ejex)
 
-ejey <- gtkLabel("V. Independiente:")
+ejey <- gtkLabel("V. Dependiente:")
 ej$packStart(ejey)
 
 save <- function(widget){
-  dialog <- gtkFileChooserDialog("Enter a name for the file", NULL, "save", "gtk-cancel",
-                                 GtkResponseType["cancel"], "gtk-save", GtkResponseType["accept"])
-  if (dialog$run() == GtkResponseType["accept"]){
-  dev.copy(jpeg, paste(dialog$getFilename(), ".jpeg"), width = 400, height = 400)
-  dev.off()
-  dialog$destroy()
-  }else if(dialog$run() == GtkResponseType["cancel"]){dialog$destroy()}
+  if(.Platform$OS.type == "windows"){
+    dev.copy(jpeg, paste(choose.dir(), "\\grafico.jpeg", sep = ""))
+    dev.off()
+  }else{
+    dialog <- gtkFileChooserDialog("Enter a name for the file", NULL, "save", "gtk-cancel",
+                                   GtkResponseType["cancel"], "gtk-save", GtkResponseType["accept"])
+    if (dialog$run() == GtkResponseType["accept"]){
+      dev.copy(jpeg, paste(dialog$getFilename(), ".jpeg"), width = 400, height = 400)
+      dev.off()
+      dialog$destroy()
+    }else if(dialog$run() == GtkResponseType["cancel"]){dialog$destroy()}
+  }
+}
+
+g <- function(etx, ety, titul, color = NULL){
+  plot(x = datos[,gtkComboBoxGetActive(x)+1],
+       y = datos[,gtkComboBoxGetActive(y)+1],
+       xlab = etx,
+       ylab = ety,
+       pch = 21, cex = 1, bg = "blue", font.lab = 2, col = color,
+       family = "serif", col.lab = "#41B83F", bty = "L", fg = "#7DFF7D",
+       main = titul, col.main = "#1FAB1D")
 }
 
 graficar <- function(widget){
@@ -125,6 +144,14 @@ graficar <- function(widget){
   
   division$packStart(graphics, fill = T, expand = T)
   
+  aplibot <- function(widget){
+    title <- gtkEntryGetText(titulo)
+    labx <- gtkEntryGetText(etiquetax)
+    laby <- gtkEntryGetText(etiquetay)
+    col <- gtkComboBoxGetActive(color)
+    ifelse(col == 0, g(labx, laby, title), g(labx, laby, title, col))
+  }
+
   # Fila 1 - Titulo y seleccion
   opciones <- gtkHBox(F, 0)
   division$packStart(opciones, fill = F, expand = F)
@@ -143,13 +170,14 @@ graficar <- function(widget){
   opciones$packStart(resaltar, fill = F, expand = F)
   
   color <- gtkComboBoxNewText()
+  color$appendText("Ninguno")
   for(nombre in nombres){color$appendText(nombre)}
   color$setActive(0)
   color$show()
   opciones$packStart(color, fill = F, expand = F)
   
   aplicar <- gtkButton("Aplicar")
-  gSignalConnect(aplicar, "clicked", save)
+  gSignalConnect(aplicar, "clicked", aplibot)
   opciones$packStart(aplicar, fill = F)
   
   # Fila 2 - Etiqueta x e y
@@ -181,13 +209,10 @@ graficar <- function(widget){
   graf["border-width"] <- 7
   graf$showAll()
   
-  plot(x = datos[,gtkComboBoxGetActive(x)+1],
-       y = datos[,gtkComboBoxGetActive(y)+1],
-       xlab = names(datos)[gtkComboBoxGetActive(x)+1],
-       ylab = names(datos)[gtkComboBoxGetActive(y)+1],
-       pch = 21, cex = 1, bg = "blue", font.lab = 2,
-       family = "serif", col.lab = "#41B83F", bty = "L", fg = "#7DFF7D",
-       main = "Gráfico de dispersión", col.main = "#1FAB1D")
+  etx <- names(datos)[gtkComboBoxGetActive(x)+1]
+  ety <- names(datos)[gtkComboBoxGetActive(y)+1]
+  titul <- "Gráfico de dispersión"
+  g(etx, ety, titul)
 }
 
 grafico <- gtkButton("Graficar")
