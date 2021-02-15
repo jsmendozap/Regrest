@@ -101,14 +101,14 @@ graficar <- function(widget){
       grup <- paleta[datos[,gtkComboBoxGetActive(color)]]
     }
     ifelse(col == 0, g(labx, laby, title), g(labx, laby, title, grup, grup))
-    legend("bottomright", legend = levels(datos[,gtkComboBoxGetActive(color)]), lwd = 3,
-           col = paleta, bty = "n")
+    if(col != 0){legend("bottomright", legend = levels(datos[,gtkComboBoxGetActive(color)]), lwd = 3,
+           col = paleta, bty = "n")}
   }
 
   # Fila 1 - Titulo y seleccion
   opciones <- gtkHBox(F, 0)
   division$packStart(opciones, fill = F, expand = F)
-  opciones$`height-request` <- 20
+  ifelse(.Platform$OS.type == "windows", opciones$`height-request` <- 20, opciones$`height-request` <- 35)
   
   tit <- gtkLabel("Titulo:")
   tit$xpad <- 5
@@ -136,7 +136,7 @@ graficar <- function(widget){
   # Fila 2 - Etiqueta x e y
   opciones2 <- gtkHBox(F, 0)
   division$packStart(opciones2, fill = F, expand = F)
-  opciones2$`height-request` <- 20
+  ifelse(.Platform$OS.type == "windows", opciones2$`height-request` <- 20, opciones2$`height-request` <- 30)
   
   etiqueta <- gtkLabel("Etiqueta x:")
   etiqueta$xpad <- 5
