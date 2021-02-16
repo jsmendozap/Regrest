@@ -215,7 +215,7 @@ supuestos <- function(widget){
   h1 <- gtkHBox(F, 5)
   v1$packStart(h1, fill = F, expand = F)
   
-  tiposup <<- gtkComboBoxNewText()
+  tiposup <- gtkComboBoxNewText()
   graficos <- c("Residuales", "Residuales Estandarizados", "Q-Q Plot")
   for (grafico in graficos){tiposup$appendText(grafico)}
   tiposup$setActive(0)
@@ -324,7 +324,7 @@ ej$packStart(ejey)
 
 grafico <- gtkButton("Graficar")
 gSignalConnect(grafico, "clicked", graficar)
-ej$packStart(grafico)
+ej$packStart(grafico, fill = T)
 
 variables <- NULL
 var <- function(widget){
