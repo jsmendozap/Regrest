@@ -177,6 +177,62 @@ nuevo <- function(widget){
   y$setActive(0)
 }
 
+grasup <- function(tipo){
+  if(tipo == 0){
+    plot(x = modelo$fitted.values, y = modelo$residuals,
+         xlab = "Valores Ajustados", ylab = "Residuales",
+         pch = 21, cex = 1, bg = "green", font.lab = 2,
+         family = "serif", col.lab = "#38761D", bty = "L", fg = "#C5DAD8",
+         main = "Valores Ajustados vs Residuales", col.main = "#120732")
+    abline(h = 0, lty = 3, lwd = 3, col = "#1A2716")
+    
+  }else if(tipo == 1){
+    plot(x = modelo$fitted.values, y = rstudent(modelo),
+         xlab = "Valores Ajustados", ylab = "Residuales Estandarizados",
+         pch = 21, cex = 1, bg = "green", font.lab = 2,
+         family = "serif", col.lab = "#38761D", bty = "L", fg = "#C5DAD8",
+         main = "Valores Ajustados vs Residuales Estandarizados", col.main = "#120732")
+    abline(h = 0, lty = 3, lwd = 3, col = "#1A2716")
+    
+  }else if(tipo == 2){
+    qqnorm(rstandard(modelo), pch = 21, cex = 1, bg = "green", font.lab = 2,
+           family = "serif", col.lab = "#38761D", bty = "L", fg = "#C5DAD8",
+           main = "Q-Q Plot", col.main = "#120732")
+    qqline(rstandard(modelo), lwd = 1, col = "#120732")
+  }
+}
+
+supuestos <- function(widget){
+  graf <- gtkWindow(show = F)
+  
+  v1 <- gtkVBox(F, 5)
+  graf$add(v1)
+    
+  graphics <- gtkDrawingArea()
+  asCairoDevice(graphics)
+  v1$packStart(graphics)
+  
+  h1 <- gtkHBox(F, 5)
+  v1$packStart(h1, fill = F, expand = F)
+  
+  tiposup <<- gtkComboBoxNewText()
+  graficos <- c("Residuales", "Residuales Estandarizados", "Q-Q Plot")
+  for (grafico in graficos){tiposup$appendText(grafico)}
+  tiposup$setActive(0)
+  tiposup$show()
+  h1$packStart(tiposup)
+  
+  ap <- gtkButton("Seleccionar Gráfico")
+  gSignalConnect(ap, "clicked", function(widget){grasup(gtkComboBoxGetActive(tiposup))})
+  h1$packEnd(ap, fill = T, expand = F)
+  
+  graf$setDefaultSize(500,500)
+  graf["border-width"] <- 5
+  graf$showAll()
+  
+  grasup(0)
+}
+
 principal <- gtkWindow(type = "toplevel", show = F)
 
 horizontal <- gtkHBox(T, 10)
@@ -209,10 +265,17 @@ gtkEntrySetAlignment(grado, 0)
 gr$packStart(grado, fill = F, expand = F)
 options(warn = 0)
 
+mod <- gtkHBox(T, 5)
+vertical1$add(mod)
+
 boton <- gtkButton("Modelar")
 gSignalConnect(boton, "clicked", reg)
+mod$packStart(boton, fill = T)
 
-vertical1$packStart(boton, fill = F)
+sup <- gtkButton("Supuestos")
+gSignalConnect(sup, "clicked", supuestos)
+mod$packStart(sup, fill = T)
+
 horizontal$packStart(vertical1)
 
 vertical2 <- gtkVBox(F, 5)
