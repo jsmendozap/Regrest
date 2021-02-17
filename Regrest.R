@@ -85,7 +85,7 @@ graficar <- function(widget){
   
   aplibot <- function(widget){
     title <- ifelse(nchar(gtkEntryGetText(titulo)) == 0,
-                    "Gr醘ico de dispersi髇", gtkEntryGetText(titulo))
+                    "Gr谩fico de dispersi贸n", gtkEntryGetText(titulo))
     labx <- ifelse(nchar(gtkEntryGetText(etiquetax)) == 0,
                    names(datos)[gtkComboBoxGetActive(x)+1],
                    gtkEntryGetText(etiquetax))
@@ -162,7 +162,7 @@ graficar <- function(widget){
   
   etx <- names(datos)[gtkComboBoxGetActive(x)+1]
   ety <- names(datos)[gtkComboBoxGetActive(y)+1]
-  titul <- "Gr醘ico de dispersi髇"
+  titul <- "Gr谩fico de dispersi贸n"
   g(etx, ety, titul)
 }
 
@@ -222,7 +222,7 @@ supuestos <- function(widget){
   tiposup$show()
   h1$packStart(tiposup)
   
-  ap <- gtkButton("Seleccionar Gr醘ico")
+  ap <- gtkButton("Seleccionar Gr谩fico")
   gSignalConnect(ap, "clicked", function(widget){grasup(gtkComboBoxGetActive(tiposup))})
   h1$packEnd(ap, fill = T, expand = F)
   
@@ -239,7 +239,7 @@ informacion <- function(widget){
                  Regrest V 1.0
         
      Herramienta desarrollada por:  
-            Sebasti醤 Mendoza      
+            Sebasti谩n Mendoza      
          jsmendozap@unal.edu.co
        "
   cuadro <- gtkMessageDialog(NULL, "destroy-with-parent", "info", "ok", creditos)
@@ -257,16 +257,16 @@ vertical$packEnd(horizontal)
 
 vertical1 <- gtkVBox(F, 2)
 
-regsim <- gtkRadioButton(NULL, "Regresi髇 Simple")
+regsim <- gtkRadioButton(NULL, "Regresi贸n Simple")
 vertical1$packStart(regsim)
 
-regmul <- gtkRadioButton(c(NULL, regsim), "Regresi髇 M鷏tiple")
+regmul <- gtkRadioButton(c(NULL, regsim), "Regresi贸n M煤ltiple")
 vertical1$packStart(regmul)
 
-regexp <- gtkRadioButton(c(NULL, regsim, regmul), "Regresi髇 Exponencial")
+regexp <- gtkRadioButton(c(NULL, regsim, regmul), "Regresi贸n Exponencial")
 vertical1$packStart(regexp)
 
-regpol <- gtkRadioButton(c(NULL, regsim, regmul, regexp), "Regresi髇 Polin髆ica")
+regpol <- gtkRadioButton(c(NULL, regsim, regmul, regexp), "Regresi贸n Polin贸mica")
 vertical1$packStart(regpol)
 
 gr <- gtkHBox(F, 0)
@@ -347,7 +347,7 @@ variables <- NULL
 var <- function(widget){
   variables <<- c(variables, colnames(datos)[gtkComboBoxGetActive(x)+1])}
 
-agregar <- gtkButton("A馻dir variable")
+agregar <- gtkButton("A帽adir variable")
 gSignalConnect(agregar, "clicked", var)
 sel$packEnd(agregar)
 
