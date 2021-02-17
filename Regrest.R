@@ -20,7 +20,7 @@ reg <- function(widget){
   }else if(regexp$active == T){
     fm <<- as.formula(paste(paste("log(",colnames(datos)[gtkComboBoxGetActive(y)+1], ")"), "~", paste("log(",colnames(datos)[gtkComboBoxGetActive(x)+1]), ")"))
   }else if(regpol$active == T){
-    fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", "poly(", colnames(datos)[gtkComboBoxGetActive(x)+1], ",", as.numeric(gtkEntryGetText(grado)),", raw = T)", sep = ""))
+    fm <<- as.formula(paste(colnames(datos)[gtkComboBoxGetActive(y)+1], "~", "poly(", colnames(datos)[gtkComboBoxGetActive(x)+1], ",", as.numeric(gtkSpinButtonGetValue(grado)),", raw = T)", sep = ""))
   }
   modelo <<- lm(fm, data = datos)
   modelo$call$formula <- fm
@@ -233,9 +233,27 @@ supuestos <- function(widget){
   grasup(0)
 }
 
+informacion <- function(widget){
+  
+  creditos <- "
+                 Regrest V 1.0
+        
+     Herramienta desarrollada por:  
+            Sebastián Mendoza      
+         jsmendozap@unal.edu.co
+       "
+  cuadro <- gtkMessageDialog(NULL, "destroy-with-parent", "info", "ok", creditos)
+  gtkWidgetModifyBg(cuadro, "normal", color = "white")
+  if (cuadro$run() == GtkResponseType["ok"]){cuadro$destroy()}
+  
+}
 principal <- gtkWindow(type = "toplevel", show = F)
 
+vertical <- gtkVBox(F, 5)
+principal$add(vertical)
+
 horizontal <- gtkHBox(T, 10)
+vertical$packEnd(horizontal)
 
 vertical1 <- gtkVBox(F, 2)
 
@@ -258,12 +276,10 @@ eti <- gtkLabel("Grado Polinomio:")
 eti$xpad <- 5
 gr$packStart(eti, fill = F, expand = F)
 
-options(warn = -1)
-grado <- gtkEntry(5)
-grado$`width-request` <- 45
-gtkEntrySetAlignment(grado, 0)
+ajuste <- gtkAdjustment(0, 0, 100, 1, 1, 1)
+grado <- gtkSpinButton(ajuste, 1.0, 0)
+grado$`width-request` <- 40
 gr$packStart(grado, fill = F, expand = F)
-options(warn = 0)
 
 mod <- gtkHBox(T, 5)
 vertical1$add(mod)
@@ -279,6 +295,7 @@ mod$packStart(sup, fill = T)
 horizontal$packStart(vertical1)
 
 vertical2 <- gtkVBox(F, 5)
+horizontal$packStart(vertical2)
 
 cargar <- gtkHBox(F, 3)
 vertical2$packStart(cargar)
@@ -328,8 +345,7 @@ ej$packStart(grafico, fill = T)
 
 variables <- NULL
 var <- function(widget){
-  variables <<- c(variables, colnames(datos)[gtkComboBoxGetActive(x)+1])
-}
+  variables <<- c(variables, colnames(datos)[gtkComboBoxGetActive(x)+1])}
 
 agregar <- gtkButton("Añadir variable")
 gSignalConnect(agregar, "clicked", var)
@@ -343,11 +359,17 @@ y <- gtkComboBoxNewText()
 y$show()
 sel$packStart(y, fill = F)
 
-horizontal$packStart(vertical2)
+menubar <- gtkMenuBar()
+menubar$`height-request` <- 20
+vertical$packStart(menubar, fill = T, expand = F)
 
-principal$add(horizontal)
+acerca <- gtkMenu()
+acercaitem <- gtkMenuItemNewWithMnemonic(label = "Acerca")
+gSignalConnect(acercaitem, "activate", informacion)
+menubar$append(acercaitem)
 
+gtkWidgetModifyBg(principal, "normal", color = "white")
 principal$set(title = "Regrest")
 principal["visible"] <- T
-principal["border-width"] <- 7
+principal["border-width"] <- 5
 principal$show()
