@@ -1,3 +1,4 @@
+options("encoding" = "UTF-8")
 if("easypackages" %in% installed.packages() == F){install.packages("easypackages")}
 if("RGtk2" %in% installed.packages() == F){install.packages("RGtk2", dependencies = T)}
 library(easypackages)
